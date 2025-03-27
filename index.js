@@ -1,16 +1,15 @@
 const express = require("express");
 const cors = require("cors");
-const { Configuration, OpenAIApi } = require("openai");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 app.get("/", (req, res) => {
   res.send("RMWalton ChatGPT API is running ✅");
@@ -21,12 +20,12 @@ app.post("/chat", async (req, res) => {
   if (!userMessage) return res.status(400).json({ error: "Message is required." });
 
   try {
-    const chat = await openai.createChatCompletion({
+    const chat = await openai.chat.completions.create({
       model: "gpt-3.5-turbo",
       messages: [{ role: "user", content: userMessage }],
     });
 
-    res.json({ reply: chat.data.choices[0].message.content });
+    res.json({ reply: chat.choices[0].message.content });
   } catch (err) {
     console.error("OpenAI error:", err.message);
     res.status(500).json({ error: "Something went wrong." });
